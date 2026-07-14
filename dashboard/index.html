@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тендерный штаб</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2315324b'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='Arial' font-size='25' font-weight='700' fill='white'%3EПР%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">ПР</div>
+      <div>
+        <div class="brand-name">Промресурс</div>
+        <h1>Тендерный штаб</h1>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="updated" id="updatedAt"></span>
+      <button class="icon-button" id="copySummary" type="button" aria-label="Скопировать сводку" data-tooltip="Скопировать сводку">
+        <i data-lucide="clipboard-copy" aria-hidden="true"></i>
+      </button>
+      <a class="command-button" id="excelLink" href="../reports/tenders/2026-07-14_тендеры_газоанализаторы.xlsx">
+        <i data-lucide="sheet" aria-hidden="true"></i>
+        <span>Excel</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary-grid" aria-label="Сводка">
+      <article class="summary-card">
+        <span>Активные</span>
+        <strong id="metricTotal">0</strong>
+        <small id="metricNew">0 новых</small>
+      </article>
+      <article class="summary-card summary-card-good">
+        <span>Класс A</span>
+        <strong id="metricA">0</strong>
+        <small>участвовать в первую очередь</small>
+      </article>
+      <article class="summary-card summary-card-warn">
+        <span>До 48 часов</span>
+        <strong id="metricUrgent">0</strong>
+        <small>нужна реакция сегодня</small>
+      </article>
+      <article class="summary-card">
+        <span>Известная сумма</span>
+        <strong id="metricValue">0 ₽</strong>
+        <small>только закупки в рублях</small>
+      </article>
+    </section>
+
+    <section class="action-band" aria-labelledby="actionTitle">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Фокус дня</span>
+          <h2 id="actionTitle">Ближайшие действия</h2>
+        </div>
+        <span class="action-count" id="actionCount"></span>
+      </div>
+      <div class="action-list" id="actionList"></div>
+    </section>
+
+    <section class="workspace" aria-label="Работа с тендерами">
+      <div class="list-pane">
+        <div class="toolbar">
+          <label class="search-field">
+            <i data-lucide="search" aria-hidden="true"></i>
+            <span class="sr-only">Поиск</span>
+            <input id="searchInput" type="search" placeholder="Заказчик, номер или оборудование">
+          </label>
+          <div class="class-filter" aria-label="Класс тендера">
+            <button type="button" class="filter-button is-active" data-class="all">Все</button>
+            <button type="button" class="filter-button" data-class="A">A</button>
+            <button type="button" class="filter-button" data-class="B">B</button>
+            <button type="button" class="filter-button" data-class="C">C</button>
+          </div>
+          <label>
+            <span class="sr-only">Страна</span>
+            <select id="countryFilter">
+              <option value="all">Все страны</option>
+            </select>
+          </label>
+          <label>
+            <span class="sr-only">Статус менеджера</span>
+            <select id="statusFilter">
+              <option value="all">Все статусы</option>
+              <option>Новый</option>
+              <option>В работе</option>
+              <option>Запрос цены</option>
+              <option>Готовим заявку</option>
+              <option>Подано</option>
+              <option>Отказ</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="result-line">
+          <span id="resultCount"></span>
+          <button class="text-button" id="resetFilters" type="button">Сбросить</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Класс</th>
+                <th>Закупка</th>
+                <th>Заказчик</th>
+                <th>Сумма</th>
+                <th>Дедлайн</th>
+                <th>Решение</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody id="tenderRows"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyState" hidden>
+          <i data-lucide="search-x" aria-hidden="true"></i>
+          <span>По выбранным условиям тендеров нет</span>
+        </div>
+      </div>
+
+      <aside class="detail-pane" id="detailPane" aria-live="polite">
+        <div class="detail-empty" id="detailEmpty">
+          <i data-lucide="mouse-pointer-2" aria-hidden="true"></i>
+          <span>Выберите тендер</span>
+        </div>
+        <div id="detailContent" hidden>
+          <div class="detail-topline">
+            <div id="detailClass"></div>
+            <button class="icon-button detail-close" id="closeDetail" type="button" aria-label="Закрыть карточку" data-tooltip="Закрыть">
+              <i data-lucide="x" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h2 id="detailTitle"></h2>
+          <div class="detail-customer" id="detailCustomer"></div>
+          <dl class="facts" id="detailFacts"></dl>
+          <section class="detail-section">
+            <h3>Почему подходит</h3>
+            <p id="detailRelevance"></p>
+          </section>
+          <section class="detail-section">
+            <h3>Гипотеза победы</h3>
+            <p id="detailStrategy"></p>
+          </section>
+          <section class="detail-section risk-section">
+            <h3>Риски</h3>
+            <p id="detailRisks"></p>
+          </section>
+          <section class="next-action">
+            <span>Следующий шаг</span>
+            <strong id="detailAction"></strong>
+            <small id="detailActionDue"></small>
+          </section>
+          <div class="detail-actions">
+            <label>
+              <span>Статус менеджера</span>
+              <select id="detailStatus">
+                <option>Новый</option>
+                <option>В работе</option>
+                <option>Запрос цены</option>
+                <option>Готовим заявку</option>
+                <option>Подано</option>
+                <option>Отказ</option>
+              </select>
+            </label>
+            <a class="command-button primary-button" id="detailLink" target="_blank" rel="noreferrer">
+              <span>Открыть в Контуре</span>
+              <i data-lucide="external-link" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
