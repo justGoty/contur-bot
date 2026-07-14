@@ -8,6 +8,7 @@
 # Local and generated files
 *.inspect.ndjson
 *.log
+reports/tenders/*.xlsx
 .DS_Store
 Thumbs.db
 

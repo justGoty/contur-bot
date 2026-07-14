@@ -46,6 +46,7 @@ const els = {
   detailLink: document.getElementById("detailLink"),
   closeDetail: document.getElementById("closeDetail"),
   copySummary: document.getElementById("copySummary"),
+  excelLink: document.getElementById("excelLink"),
   toast: document.getElementById("toast"),
 };
 
@@ -117,6 +118,8 @@ function renderAll() {
   renderActions();
   renderTable();
   els.updatedAt.textContent = `Обновлено ${formatDateTime(state.data.generatedAt)}`;
+  els.excelLink.hidden = !state.data.reportFile;
+  if (state.data.reportFile) els.excelLink.href = state.data.reportFile;
   if (window.lucide) window.lucide.createIcons();
 }
 
